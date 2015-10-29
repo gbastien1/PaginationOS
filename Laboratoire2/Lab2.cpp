@@ -18,6 +18,8 @@ private:
 	CHAR Cadre;
 	CHAR RWX;
 	char Process;
+	CHAR R_Table; //Justification
+	CHAR M_Table; //Justification
 
 public:
 	CTableEntry(CHAR segment, int noSwap, CHAR cadre, CHAR rwx, char process)
@@ -33,6 +35,23 @@ public:
 	CHAR getSegment()	{	return Segment;		}
 	int getNoSwap()	{	return NoSwap;		}
 	char getProcess()	{	return Process;		}
+	CHAR getRTable()	{	return R_Table;		} //Justification
+	CHAR getMTable()	{   return M_Table;		} //Justification
+
+	//Justification
+	void AddRTable(bool r) 
+	{
+		R_Table >> 1;
+		if (r) R_Table += 128; 
+	}
+
+	//Justification
+	void AddMTable(bool m)
+	{
+		M_Table >> 1;
+		if (m) M_Table += 128;
+	}
+
 
 	void setCadre(CHAR cadre)	{	Cadre = cadre;	}
 };
@@ -140,6 +159,18 @@ CTableEntry* getPageFault()
 
 	CHAR getCadreLibre(CHAR segment)	// TO DO
 	{
+
+		CHAR smallestValue;
+
+		/*for (int i = 0; i < TAILLE; i++) {
+			for (int j = 0; j < TAILLEPAGE; j++) {
+				if (TableDesCadres[i][j].getRTable()) {
+
+				}
+			}
+		}*/
+
+
 		CHAR cadre =  rand() % (TAILLE/TAILLEPAGE);
 		cadre = cadre + segment*TAILLE/TAILLEPAGE;
 		
@@ -405,14 +436,14 @@ int main()
 CProcess* getNewProcess()
 {
 	static int NoName=0;
-	int type = rand()%4;
+	int type = rand()%2;
 	CHAR name = ('A' + NoName <= 'Z' ? (CHAR)('A'+NoName++) : 'A' + (NoName = 0)); // Hi Hi Hi
 	switch (type)
 	{
-		case 0 : return new CProcess(name, 'E', "PrintUnMot.txt");	break;
-		case 1 : return new CProcess(name, 'E', "Division.txt");	break;
-		case 2 : return new CProcess(name, 'E', "Print20A.txt");	break;
-		case 3 : return new CProcess(name, 'E', "ViveLaVie.txt");	break;
+		case 0 : return new CProcess(name, 'E', "file1.pat");	break;
+		case 1 : return new CProcess(name, 'E', "file2.pat");	break;
+		/*case 2 : return new CProcess(name, 'E', "Print20A.txt");	break;
+		case 3 : return new CProcess(name, 'E', "ViveLaVie.txt");	break;*/
 	}
 	return NULL; // arrive jamais en principe
 }
