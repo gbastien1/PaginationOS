@@ -29,6 +29,8 @@ public:
 		Cadre =		cadre;
 		RWX =		rwx;
 		Process =	process;
+		M_Table = 0; //Justification
+		R_Table = 0; //Justification
 	}
 
 	CHAR getCadre()		{	return Cadre;		}
@@ -157,21 +159,19 @@ CTableEntry* getPageFault()
 		file.close();
 	}
 
-	CHAR getCadreLibre(CHAR segment)	// TO DO
+	CHAR getCadreLibre(CHAR segment)
 	{
-
 		CHAR smallestValue;
+		CHAR cadre;
 
-		/*for (int i = 0; i < TAILLE; i++) {
-			for (int j = 0; j < TAILLEPAGE; j++) {
-				if (TableDesCadres[i][j].getRTable()) {
-
-				}
+		//Find the lowest page
+		for (int i = 0; i < TAILLE/TAILLEPAGE; i++) {
+			if (TableDesCadres[i]->getRTable() < smallestValue) {
+				smallestValue = TableDesCadres[i]->getRTable();
+				cadre = i;
 			}
-		}*/
+		}
 
-
-		CHAR cadre =  rand() % (TAILLE/TAILLEPAGE);
 		cadre = cadre + segment*TAILLE/TAILLEPAGE;
 		
 		if (TableDesCadres[cadre] != NULL)
