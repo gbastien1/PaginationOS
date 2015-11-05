@@ -462,10 +462,11 @@ CProcess* getNewProcess()
 	CHAR name = ('A' + NoName <= 'Z' ? (CHAR)('A'+NoName++) : 'A' + (NoName = 0)); // Hi Hi Hi
 	switch (type)
 	{
-		case 0 : return new CProcess(name, 'E', "file1.pat");	break;
-		case 1 : return new CProcess(name, 'E', "file2.pat");	break;
-		/*case 2 : return new CProcess(name, 'E', "Print20A.txt");	break;
-		case 3 : return new CProcess(name, 'E', "ViveLaVie.txt");	break;*/
+		case 0 : return new CProcess(name, 'E', "file1.txt");	break;
+		case 1 : return new CProcess(name, 'E', "file2.txt");	break;
+		case 2 : return new CProcess(name, 'E', "file3.txt");	break;
+		case 3 : return new CProcess(name, 'E', "file4.txt");	break;
+		case 4: return new CProcess(name, 'E', "file5.txt");	break;
 	}
 	return NULL; // arrive jamais en principe
 }
