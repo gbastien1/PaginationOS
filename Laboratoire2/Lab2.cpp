@@ -43,17 +43,16 @@ public:
 	//Justification
 	void AddRTable(bool r) 
 	{
-		R_Table >> 1;
+		R_Table >>= 1;
 		if (r) R_Table += 128; 
 	}
 
 	//Justification
 	void AddMTable(bool m)
 	{
-		M_Table >> 1;
+		M_Table >>= 1;
 		if (m) M_Table += 128;
 	}
-
 
 	void setCadre(CHAR cadre)	{	Cadre = cadre;	}
 };
@@ -139,9 +138,32 @@ CTableEntry* getPageFault()
 		return NULL;					// pas de défaut de page à cette instruction
 	}
 	
-	void MiseAJour()
+	void MiseAJour(char currentInstruction, char currentCadre)
 	{
-		// TO DO
+		for (int i=32; i < TAILLE/TAILLEPAGE + 32; i++){
+			bool r = 0;
+			bool m = 0;
+
+			if (i == currentCadre) {
+				switch (currentInstruction) {
+					case 1: r = 1; break;
+					case 2: m = 1; break;
+					case 3:
+						r = 1; 
+						m = 1;
+						break;
+					case 4:
+						r = 1; 
+						m = 1;
+						break;
+					case 5: r = 1; break;
+					case 7: r = 1; break;
+				}
+			}
+
+			TableDesCadres[i]->AddMTable(m);
+			TableDesCadres[i]->AddRTable(r);
+		}
 	}
 
 	void loadPage(CTableEntry* page)
@@ -223,7 +245,7 @@ CTableEntry* getPageFault()
 		CHAR adresseProg = resolve(data,0);
 		CHAR adresseData = resolve(data,1);
 
-		MiseAJour();
+		MiseAJour(no, adresseData); //Justification
 
 		if (State != 'E') return;		// Pas exécutable
 		switch (no)
@@ -405,7 +427,7 @@ int main()
 	ofstream fileOut("Swap.cpp", ios::trunc);
 	fileOut.close();
 
-	CProcess** P = new CProcess*[NombreProcess];
+	//CProcess** P = new CProcess*[NombreProcess];  //JUSTIFICATION
 	for (int x = 0; x < NombreProcess; x++) P[x] = NULL;
 	
 	int IterMax = -1;
