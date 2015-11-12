@@ -197,3 +197,4 @@ FakesAssemblies/
 *.sln
 *.vcxproj
 *.filters
+Laboratoire2/Swap.cpp
