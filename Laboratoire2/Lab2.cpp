@@ -172,7 +172,7 @@ CTableEntry* getPageFault()
 		//DEBUG
 		system("Color 0C");
 		cout << "Current Cadre: " << data << endl;
-		system("Color 0F");
+		//system("Color 0F");
 	}
 
 	void loadPage(CTableEntry* page)
