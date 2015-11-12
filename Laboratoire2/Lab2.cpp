@@ -29,8 +29,8 @@ public:
 		Cadre =		cadre;
 		RWX =		rwx;
 		Process =	process;
-		M_Table = 0; //Justification
-		R_Table = 0; //Justification
+		M_Table = 128; //Justification
+		R_Table = 128; //Justification
 	}
 
 	CHAR getCadre()		{	return Cadre;		}
@@ -171,7 +171,7 @@ CTableEntry* getPageFault()
 
 		//DEBUG
 		system("Color 0C");
-		cout << "Current Cadre: " << data << endl;
+		cout << endl << "Current Cadre: " << (int)data << endl << endl;
 		//system("Color 0F");
 	}
 
@@ -197,11 +197,20 @@ CTableEntry* getPageFault()
 
 		//Find the lowest page
 		for (int i = 0; i < TAILLE / TAILLEPAGE; i++) {
-			if (PageTable[segment][i]->getRTable() < smallestValue) {
-				smallestValue = PageTable[segment][i]->getRTable();
-				cadre = i;
+			if (TableDesCadres[i] != NULL) {
+				if (TableDesCadres[i]->getRTable() < smallestValue) {
+					smallestValue = TableDesCadres[i]->getRTable();
+					cadre = i;
+				}
 			}
+			else {
+				cadre = i;
+				break;
+			}
+
 		}
+
+		if (TableDesCadres[cadre] != NULL) TableDesCadres[cadre]->AddRTable(1);
 
 		cadre = cadre + segment*TAILLE/TAILLEPAGE;
 		
@@ -442,7 +451,7 @@ int main()
 	int IterMax = -1;
 	while (IterMax++ < 50000)
 	{ 
-		//CPU.afficherRAM();
+		CPU.afficherRAM();
 		int No = getNextProcess(NombreProcess);
 		if (P[No] == NULL)	P[No] = getNewProcess();
 		else
