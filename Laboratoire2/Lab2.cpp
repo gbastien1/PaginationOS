@@ -138,32 +138,41 @@ CTableEntry* getPageFault()
 		return NULL;					// pas de défaut de page à cette instruction
 	}
 	
-	void MiseAJour(char currentInstruction, char currentCadre)
+	void MiseAJour(char currentInstruction, CHAR data)
 	{
-		for (int i=32; i < TAILLE/TAILLEPAGE + 32; i++){
-			bool r = 0;
-			bool m = 0;
+		data = data & 252 / 4;
 
-			if (i == currentCadre) {
-				switch (currentInstruction) {
-					case 1: r = 1; break;
-					case 2: m = 1; break;
-					case 3:
-						r = 1; 
-						m = 1;
-						break;
-					case 4:
-						r = 1; 
-						m = 1;
-						break;
-					case 5: r = 1; break;
-					case 7: r = 1; break;
+		for (int segment = 0; segment < 2; segment++) {
+			for (int i=0; i < TAILLE / TAILLEPAGE; i++){  
+				bool r = 0;
+				bool m = 0;
+
+				if (i == data) {
+					switch (currentInstruction) {
+						case 1: r = 1; break;
+						case 2: m = 1; break;
+						case 3:
+							r = 1; 
+							m = 1;
+							break;
+						case 4:
+							r = 1; 
+							m = 1;
+							break;
+						case 5: r = 1; break;
+						case 7: r = 1; break;
+					}
 				}
-			}
 
-			TableDesCadres[i]->AddMTable(m);
-			TableDesCadres[i]->AddRTable(r);
+				PageTable[segment][i]->AddMTable(m); 
+				PageTable[segment][i]->AddRTable(r);
+			}
 		}
+
+		//DEBUG
+		system("Color 0C");
+		cout << "Current Cadre: " << data << endl;
+		//system("Color 0F");
 	}
 
 	void loadPage(CTableEntry* page)
@@ -183,13 +192,13 @@ CTableEntry* getPageFault()
 
 	CHAR getCadreLibre(CHAR segment)
 	{
-		CHAR smallestValue;
-		CHAR cadre;
+		CHAR smallestValue = 255;
+		CHAR cadre = 0;
 
 		//Find the lowest page
-		for (int i = 0; i < TAILLE/TAILLEPAGE; i++) {
-			if (TableDesCadres[i]->getRTable() < smallestValue) {
-				smallestValue = TableDesCadres[i]->getRTable();
+		for (int i = 0; i < TAILLE / TAILLEPAGE; i++) {
+			if (PageTable[segment][i]->getRTable() < smallestValue) {
+				smallestValue = PageTable[segment][i]->getRTable();
 				cadre = i;
 			}
 		}
