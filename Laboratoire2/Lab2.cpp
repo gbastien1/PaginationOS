@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+//#include <unistd.h> // justification sleep
+#include "windows.h" 
 using namespace std;
 
 
@@ -39,6 +41,7 @@ public:
 	char getProcess()	{	return Process;		}
 	CHAR getRTable()	{	return R_Table;		} //Justification
 	CHAR getMTable()	{   return M_Table;		} //Justification
+	CHAR getRWX()		{	return RWX;			} //Justification
 
 	//Justification
 	void AddRTable(bool r) 
@@ -170,8 +173,8 @@ CTableEntry* getPageFault()
 		}
 
 		//DEBUG
-		system("Color 0C");
-		cout << endl << "Current Cadre: " << (int)data << endl << endl;
+		//system("Color 0C");
+		//cout << endl << "Current Cadre: " << (int)data << endl << endl;
 		//system("Color 0F");
 	}
 
@@ -219,7 +222,8 @@ CTableEntry* getPageFault()
 			save(cadre);
 			TableDesCadres[cadre]->setCadre(FAULT);
 			TableDesCadres[cadre] = NULL;
-		}				
+		}			
+		cout << endl << "[" << (int)cadre << "]	";
 		return cadre;
 	}
 
@@ -255,13 +259,17 @@ CTableEntry* getPageFault()
 
 	void run()
 	{
+		//usleep(1000);
+		Sleep(100);
 		CHAR newPC = resolve(PC,0);
 
 		char no		= (RAM[newPC] & 224) >> 5;
 		CHAR data	= (RAM[newPC] & 31);
 	
-		CHAR adresseProg = resolve(data,0);
+		CHAR adresseProg = resolve(data, 0);
 		CHAR adresseData = resolve(data,1);
+
+		CHAR rwx = PageTable[1][(PC & 252) / 4]->getRWX(); //justification
 
 		MiseAJour(no, adresseData); //Justification
 
@@ -273,22 +281,35 @@ CTableEntry* getPageFault()
 				PC++;
 				break;
 		case 1	: // RED [adresse]	: Copie adresse dans le registre.
+				if (!(rwx & 1)) { return; } //justification
 				Registre = RAM[adresseData];
 				PC++;
 				break;
 		case 2	: // WRT [adresse]	: Copie le registre dans adresse.
+				if (!(rwx & 2)) { return; } //justification
 				RAM[adresseData] = Registre;
 				PC++;
 				break;
 		case 3	: // ADD [adresse]	: Additionne la valeur dans adresse au registre.
+				if (!(rwx & 1) || //justification
+					!(rwx & 2))
+				{ 
+					return; 
+				}
 				Registre += RAM[adresseData];
 				PC++;
 				break;
 		case 4	: // SUB  adresse	: Soustrait la valeur dans adresse au registre.
+				if (!(rwx & 1) || //justification
+					!(rwx & 2))
+				{
+					return;
+				}
 				Registre -= RAM[adresseData];
 				PC++;
 				break;
 		case 5	: // JMP  adresse	: Effectue un saut à l'adresse dans le registre et copie adresse dans le registre.
+				if (!(rwx & 1)) { return; } //justification
 				PC = Registre;
 				Registre = data;
 				break;
@@ -299,6 +320,7 @@ CTableEntry* getPageFault()
 		case 7	: //INT valeur	Effectue l'interruption valeur.
 				if (data == 0)
 				{
+					if (!(rwx & 1)) { return; } //justification
 					adresseData = resolve(Registre & 31, 1);
 					cout << (RAM[adresseData] != 0 ? (char)(';' + RAM[adresseData]) : ' ');
 				}
@@ -451,7 +473,7 @@ int main()
 	int IterMax = -1;
 	while (IterMax++ < 50000)
 	{ 
-		CPU.afficherRAM();
+		//CPU.afficherRAM();
 		int No = getNextProcess(NombreProcess);
 		if (P[No] == NULL)	P[No] = getNewProcess();
 		else
@@ -476,7 +498,7 @@ int main()
 CProcess* getNewProcess()
 {
 	static int NoName=0;
-	int type = rand()%2;
+	int type = rand()%5;
 	CHAR name = ('A' + NoName <= 'Z' ? (CHAR)('A'+NoName++) : 'A' + (NoName = 0)); // Hi Hi Hi
 	switch (type)
 	{
